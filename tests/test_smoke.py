@@ -31,3 +31,8 @@ def test_open_data_allowed():
 def test_data_root_env(monkeypatch, tmp_path):
     monkeypatch.setenv("DATA_ROOT", str(tmp_path))
     assert config.data_root() == tmp_path.resolve()
+
+
+def test_load_yaml_rejects_path_traversal():
+    with pytest.raises(ValueError, match="inside"):
+        config.load_yaml("../pyproject.toml")

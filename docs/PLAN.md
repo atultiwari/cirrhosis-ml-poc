@@ -1,7 +1,7 @@
 # Cirrhosis ML Proof-of-Concept — Detailed Plan
 
 **Owner:** Dr Atul Tiwari · **Clinical home:** Dept of Gastroenterology, RNT Medical College, Udaipur
-**Status:** Planning → Phase 0 · **Last updated:** 2026-11-03
+**Status:** P0–P1 done → Phase 2 · **Last updated:** 2026-11-03
 
 ---
 
@@ -34,7 +34,7 @@ Non-goal: a clinically deployable tool. These are research PoCs.
 - Primary: predict overall survival (time-to-death); report risk at 2, 5 and 10 years.
 - Secondary: compare ML survival models vs the classic **Mayo risk score** (Dickson et al., Hepatology
   1989; R = 0.871·ln(bilirubin) − 2.53·ln(albumin) + 0.039·age + 2.38·ln(PT) + 0.859·edema —
-  **verify coefficients against the original paper before use**).
+  verified against the original 2026-11-03 — these are the final n=418 model; see DECISIONS.md).
 
 ### 1.3 Analysis steps
 1. **EDA** → table 1 (by status), missingness map, KM curves overall and by stage.
@@ -177,8 +177,8 @@ grading, Baveno VII and ICA-AKI definitions that the public data lack).
 ---
 
 ## 5. Phase checklist
-- [ ] **P0** uv project, pyproject, folder structure, pytest, pre-commit (ruff), `configs/` stubs
-- [ ] **P1** Track A data load + EDA + Mayo score
+- [x] **P0** uv project, pyproject, folder structure, pytest, ruff (2026-11-03; pre-commit hook not yet added)
+- [x] **P1** Track A data load + EDA + Mayo score (2026-11-03; `uv run python -m cirrhosis_ml.pbc.run_all`)
 - [ ] **P2** Track A models, validation, metrics, report
 - [ ] **P3** PhysioNet credentialing (Atul) — see `docs/PHYSIONET_ACCESS.md`
 - [ ] **P4** Track B cohort/features/outcomes/scores on MIMIC demo + eICU demo

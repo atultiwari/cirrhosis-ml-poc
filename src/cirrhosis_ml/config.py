@@ -36,7 +36,9 @@ def data_root(default: Path = OPEN_DATA_DIR) -> Path:
 
 def load_yaml(name: str) -> dict[str, Any]:
     """Load a YAML file from `configs/` (e.g. ``load_yaml("icd_codes.yaml")``)."""
-    path = CONFIGS_DIR / name
+    path = (CONFIGS_DIR / name).resolve()
+    if not path.is_relative_to(CONFIGS_DIR.resolve()):
+        raise ValueError(f"Config name must stay inside {CONFIGS_DIR}: {name!r}")
     if not path.is_file():
         raise FileNotFoundError(f"Config file not found: {path}")
     with path.open(encoding="utf-8") as fh:

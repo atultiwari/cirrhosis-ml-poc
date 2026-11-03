@@ -37,7 +37,7 @@ Status: ☐ not started · ◐ in progress · ☑ done · n/a not applicable.
 | 12d | Analytical methods | D;E | Heterogeneity across clusters | n/a | ☐ | |
 | 12e | Analytical methods | D;E | All performance measures/plots and rationale; model comparison | ◐ | ☐ | `evaluation/survival_metrics.py` |
 | 12f | Analytical methods | E | Model updating (e.g. recalibration) | ☐ | ☐ | |
-| 12g | Analytical methods | E | How predictions were calculated for evaluation | ◐ | ☐ | `pbc/mayo_score.py` |
+| 12g | Analytical methods | E | How predictions were calculated for evaluation | ◐ | ☐ | `pbc/mayo_score.py` (apparent performance; DECISIONS) |
 | 13 | Class imbalance | D;E | Imbalance methods, why, and recalibration | n/a | ◐ | DECISIONS: no SMOTE |
 | 14 | Fairness | D;E | Approaches to model fairness and rationale | ☐ | ☐ | |
 | 15 | Model output | D | Output type; thresholds and how chosen | ☐ | ☐ | |
@@ -50,7 +50,7 @@ Status: ☐ not started · ◐ in progress · ☑ done · n/a not applicable.
 | 18e | Data sharing | D;E | Availability of study data | ◐ | ☐ | UCI 878 (CC BY 4.0) |
 | 18f | Code sharing | D;E | Availability of analytical code | ◐ | ◐ | this repository |
 | 19 | Patient & public involvement | D;E | PPI details or none | ☐ | ☐ | |
-| 20a | Participants | D;E | Participant flow, n with/without outcome, follow-up summary | ◐ | ☐ | reports/pbc/table1_by_status.md |
+| 20a | Participants | D;E | Participant flow, n with/without outcome, follow-up summary | ◐ | ☐ | reports/pbc/table1_by_status_trial312.md |
 | 20b | Participants | D;E | Characteristics overall/per source, events, follow-up, missingness; group differences | ◐ | ☐ | reports/pbc/ |
 | 20c | Participants | E | Evaluation vs development predictor/outcome distributions | ☐ | ☐ | |
 | 21 | Model development | D;E | n participants and events per analysis | ◐ | ☐ | reports/pbc/mayo_score_metrics.md |

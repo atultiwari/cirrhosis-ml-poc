@@ -21,6 +21,7 @@ dependencies = [
     "scipy>=1.17.1",
     "shap>=0.50.0",
     "statsmodels>=0.15.0",
+    "tabulate>=0.10.0",
     "ucimlrepo>=0.0.7",
     "xgboost>=3.2.0",
 ]
@@ -33,6 +34,7 @@ build-backend = "uv_build"
 dev = [
     "ipykernel>=7.4.0",
     "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.17.3",
 ]
 
