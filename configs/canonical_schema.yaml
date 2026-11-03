@@ -1,0 +1,15 @@
+# Canonical feature schema — single source of truth that PBC, MIMIC-IV, eICU and the future RNT eCRF map onto.
+# Populate in Phase 0/P4. One entry per variable.
+version: 0.1
+variables:
+  - name: bilirubin_total
+    unit: mg/dL
+    si_unit: umol/L
+    plausible_range: [0.1, 60]
+    window: first_24h_max
+    sources:
+      pbc: Bilirubin
+      mimic_iv: {table: labevents, itemid: TBD}
+      eicu: {table: lab, labname: "total bilirubin"}
+      rnt_ecrf: TBD
+  # ... add: inr, creatinine, sodium, albumin, platelets, age, sex, lactate, map_min, gcs_min, vasopressor_24h, ...

@@ -1,0 +1,52 @@
+[project]
+name = "cirrhosis-ml"
+version = "0.1.0"
+description = "Cirrhosis ML proof-of-concept: PBC survival pipeline (Track A) and ICU cirrhosis outcome models (Track B)"
+authors = [
+    { name = "Atul Tiwari", email = "atultiwari.in@gmail.com" }
+]
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "duckdb>=2.0.0",
+    "lifelines>=0.30.3",
+    "lightgbm>=4.7.0",
+    "matplotlib>=3.11.2",
+    "numba>=0.61",
+    "numpy>=2.4.6",
+    "pandas>=2.3.3",
+    "polars>=2.1.0",
+    "pyyaml>=6.0.3",
+    "scikit-learn>=1.9.1",
+    "scikit-survival>=0.28.0",
+    "scipy>=1.17.1",
+    "shap>=0.50.0",
+    "statsmodels>=0.15.0",
+    "ucimlrepo>=0.0.7",
+    "xgboost>=3.2.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.21,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "network: test needs internet access (UCI fetch) when the local cache is absent",
+]

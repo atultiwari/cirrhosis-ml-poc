@@ -1,0 +1,19 @@
+# --- Data: NEVER commit patient-level data ---
+data/**
+!data/**/
+!data/**/.gitkeep
+!data/README.md
+models/**/*
+!models/.gitkeep
+reports/**/*.csv
+# --- Python ---
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+.coverage
+.ruff_cache/
+*.egg-info/
+# --- OS ---
+.DS_Store

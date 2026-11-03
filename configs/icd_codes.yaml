@@ -1,0 +1,13 @@
+# STARTING LIST — verify against published MIMIC-IV cirrhosis code lists before use (record source in docs/DECISIONS.md)
+cirrhosis:
+  icd9: ["5712", "5715", "5716"]
+  icd10: ["K7030", "K7031", "K7040", "K7041", "K743", "K744", "K745", "K7460", "K7469", "K717"]
+complications_descriptive_only:   # coded at discharge -> NOT baseline predictors
+  portal_hypertension: {icd9: ["5723"], icd10: ["K766"]}
+  varices: {icd9: ["4560", "4561", "45620", "45621"], icd10_prefix: ["I85"]}
+  hepatic_encephalopathy_failure: {icd9: ["5722"], icd10_prefix: ["K72"]}
+  sbp: {icd9: ["56723"], icd10: ["K652"]}
+  hrs: {icd9: ["5724"], icd10: ["K767"]}
+exclusions:
+  hcc: {icd9: ["1550"], icd10: ["C220"]}
+  liver_transplant_procedure: {note: "derive from procedures_icd; list TBD"}
