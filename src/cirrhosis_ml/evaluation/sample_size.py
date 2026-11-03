@@ -14,8 +14,11 @@ Criteria:
 1. expected uniform shrinkage >= ``shrinkage`` (default 0.9);
 2. small optimism (<= ``delta``, default 0.05) in Nagelkerke R2 — uses max R2_CS implied by the
    overall event rate;
-3. precise overall risk at ``timepoint`` — reported as the 95% CI of the cumulative incidence
-   achieved at the required n (as in pmsampsize; not itself a sample-size criterion there).
+3. precise overall risk at ``timepoint`` — reported only (95% CI of the cumulative incidence
+   at the required n), not enforced: ``n_required`` reflects criteria 1-2.
+
+``parameters`` counts candidate-predictor degrees of freedom; flexible learners (forests,
+boosting) use more effective parameters, so EPP is optimistic for them.
 """
 
 from __future__ import annotations

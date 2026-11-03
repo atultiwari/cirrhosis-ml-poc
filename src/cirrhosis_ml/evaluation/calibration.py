@@ -29,7 +29,9 @@ class CalibrationSummary:
 
 
 def km_risk(time: np.ndarray, event: np.ndarray, horizon: float) -> tuple[float, float, float]:
-    """1 - KM survival at ``horizon`` with 95% CI (lower, upper)."""
+    """1 - KM survival at ``horizon`` with 95% CI (lower, upper); NaN if follow-up ends earlier."""
+    if np.max(time) < horizon:
+        return np.nan, np.nan, np.nan
     kmf = KaplanMeierFitter().fit(time, event)
     surv = float(kmf.survival_function_at_times(horizon).iloc[0])
     ci = kmf.confidence_interval_survival_function_

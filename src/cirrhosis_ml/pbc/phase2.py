@@ -69,6 +69,7 @@ class Phase2Results:
     sample_size: pd.DataFrame
     fold_summary: pd.DataFrame
     discrimination: pd.DataFrame
+    per_repeat: pd.DataFrame
     differences: pd.DataFrame
     calibration: pd.DataFrame
     dca: pd.DataFrame
@@ -117,12 +118,20 @@ def _calibration_table(cals: dict[str, CalibrationSummary]) -> pd.DataFrame:
                                 "slope_hi": c.slope_ci[1]} for name, c in cals.items()}).T
 
 
-def per_repeat_slopes(cv: CVResult, time: np.ndarray, event: np.ndarray,
-                      horizon: float) -> pd.Series:
-    """Mean calibration slope over repeats (each repeat's OOF risks, not averaged)."""
-    slopes = {col: calibration_slope(time, event, cv.oof_risk[col], horizon)[0]
-              for col in cv.oof_risk.columns}
-    return pd.Series(slopes).groupby(level=0, sort=False).mean()
+def per_repeat_summary(cv: CVResult, time: np.ndarray, event: np.ndarray,
+                       cv_cfg: CVConfig) -> pd.DataFrame:
+    """Metrics on each repeat's own OOF risks (a single CV pass, no averaging over repeats):
+    mean and range over repeats. Complements the repeat-averaged OOF analysis."""
+    rows = []
+    for (model, repeat), risk in cv.oof_risk.items():
+        m = point_metrics(SurvivalData.from_arrays(time, event, risk), (cv_cfg.horizon,),
+                          cv_cfg.tau)
+        cal = calibrate(time, event, risk, cv_cfg.horizon)
+        rows.append({"model": model, "repeat": repeat, "harrell_c": m["harrell_c"],
+                     "td_auc_h": m[f"td_auc_{cv_cfg.horizon:g}"], "oe": cal.oe_ratio,
+                     "slope": calibration_slope(time, event, risk, cv_cfg.horizon)[0]})
+    df = pd.DataFrame(rows).drop(columns="repeat")
+    return df.groupby("model", sort=False).agg(["mean", "min", "max"])
 
 
 def paired_differences(time: np.ndarray, event: np.ndarray, oof: pd.DataFrame,
@@ -240,8 +249,8 @@ def run_phase2(df: pd.DataFrame, out_dir: Path, cfg: Phase2Config) -> tuple[Phas
     results = Phase2Results(
         labels=labels, sample_size=sample_size_table(trial, cfg.horizon),
         fold_summary=summarise_folds(cv.fold_metrics), discrimination=disc,
-        calibration=_calibration_table(cals).assign(
-            slope_per_repeat=per_repeat_slopes(cv, time, event, cfg.horizon)),
+        per_repeat=per_repeat_summary(cv, time, event, cv_cfg),
+        calibration=_calibration_table(cals),
         differences=paired_differences(time, event, oof, cfg, cv_cfg),
         dca=dca.loc[list(DCA_REPORT_THRESHOLDS)],
         ph_tests=ph, mayo_coefficients=mayo_coefficient_table(finals["mayo_refit"]),

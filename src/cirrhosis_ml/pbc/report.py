@@ -23,7 +23,9 @@ def discrimination_table(res: Phase2Results) -> pd.DataFrame:
                                                             values="value")
     table = table.loc[list(res.labels), list(DISC_METRICS)].rename(columns=DISC_METRICS)
     fold = res.fold_summary
-    table["IBS 1–7 y, fold mean (SD)"] = [
+    table["Harrell C, per repeat mean (range)"] = [_range(res.per_repeat, m, "harrell_c")
+                                                   for m in table.index]
+    table["IBS (yearly 1–7 y), fold mean (SD)"] = [
         f"{fold.loc[m, 'ibs_mean']:.3f} ({fold.loc[m, 'ibs_sd']:.3f})" for m in table.index]
     table["Harrell C, fold mean (SD)"] = [
         f"{fold.loc[m, 'harrell_c_mean']:.3f} ({fold.loc[m, 'harrell_c_sd']:.3f})"
@@ -37,8 +39,15 @@ def _calibration(res: Phase2Results) -> pd.DataFrame:
         "O/E (5 y)": c["O/E"].map("{:.2f}".format),
         "Calibration slope (95% CI)": [f"{r.slope:.2f} ({r.slope_lo:.2f}–{r.slope_hi:.2f})"
                                        for r in c.itertuples()],
-        "Slope, mean of per-repeat": c["slope_per_repeat"].map("{:.2f}".format),
+        "O/E, per repeat mean (range)": [_range(res.per_repeat, m, "oe", 2) for m in c.index],
+        "Slope, per repeat mean (range)": [_range(res.per_repeat, m, "slope", 2)
+                                           for m in c.index],
     }).rename(index=res.labels)
+
+
+def _range(per_repeat: pd.DataFrame, model: str, metric: str, digits: int = 3) -> str:
+    r = per_repeat.loc[model, metric]
+    return f"{r['mean']:.{digits}f} ({r['min']:.{digits}f}–{r['max']:.{digits}f})"
 
 
 def differences_table(res: Phase2Results) -> pd.DataFrame:
@@ -103,7 +112,9 @@ Phase 1 outputs (table 1, missingness, KM curves, apparent Mayo performance) are
   death), inner 3-fold grid search on the outer training fold only. Each patient's out-of-fold
   (OOF) {cfg.horizon:g}-year risk is averaged over repeats; discrimination CIs are
   {cfg.n_boot}-resample percentile bootstraps of these OOF predictions (they ignore refitting
-  variability, so are somewhat narrow). Fold-level mean (SD) is shown alongside.
+  variability, so are somewhat narrow). Averaging over repeats acts like a small ensemble, so
+  per-repeat results (each a single CV pass) are shown as mean (range) alongside; fold-level
+  mean (SD) is also given.
 - The published Mayo score was fitted on these same patients (Dickson 1989), so its performance
   is **optimistic**; the refitted Mayo-variable Cox is the fair benchmark.
 
@@ -114,7 +125,8 @@ Phase 1 outputs (table 1, missingness, KM curves, apparent Mayo performance) are
 {_md(discrimination_table(res))}
 
 ## Paired difference vs the refitted Mayo-variable Cox (model − benchmark, 95% bootstrap CI)
-A CI that excludes 0 indicates a difference in discrimination on the same patients.
+A CI that excludes 0 indicates a difference on the same patients. These are descriptive,
+unadjusted comparisons (5 models × 5 metrics); no multiplicity correction.
 
 {_md_text(differences_table(res))}
 
@@ -143,12 +155,17 @@ also shown.
 {_md(res.ph_tests["cox_full"].head(6))}
 
 ## Explainability (final models refitted on all 312 — apparent, descriptive only)
-Permutation importance = mean drop in Harrell's C when a predictor is shuffled (20 repeats).
+Permutation importance = mean drop in Harrell's C when a predictor is shuffled (20 repeats),
+computed on the training data: forests and boosting fit these data almost perfectly, so their
+importances are inflated and not comparable in size with the Cox models — read the ranking only.
 
 {_md(res.importance, ".4f")}
 
 {shap_figs}
-## Sensitivity analyses ({cfg.sens_repeats} repeats; point estimates on OOF risk)
+## Sensitivity analyses ({cfg.sens_repeats} repeats; point estimates on OOF risk, no CIs)
+The published Mayo score was fitted on all 418 patients (death outcome), so its rows are
+apparent performance; in the composite analysis it predicts death, not death-or-transplant.
+
 {_md_text(sens.set_index(["analysis", "model"]))}
 
 ### Transplant as a competing event

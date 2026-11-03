@@ -61,6 +61,16 @@ def test_net_benefit_model_beats_treat_all_at_high_threshold(exponential_cohort)
 
 
 def test_treat_all_formula():
-    time = np.array([1.0, 2.0, 6.0, 7.0])
-    nb = net_benefit(time, np.ones(4), np.ones(4), HORIZON, thresholds=[0.2])
+    time = np.repeat([1.0, 2.0, 6.0, 7.0], 5)  # 20 patients, half die before 5 y
+    nb = net_benefit(time, np.ones(20), np.ones(20), HORIZON, thresholds=[0.2])
     assert nb[0] == pytest.approx(0.5 - 0.5 * 0.25)
+
+
+def test_net_benefit_suppressed_for_small_or_short_subsets():
+    time = np.repeat([1.0, 2.0, 6.0, 7.0], 5)
+    risk = np.r_[np.full(15, 0.1), np.full(5, 0.9)]  # only 5 patients above 0.5
+    assert np.isnan(net_benefit(time, np.ones(20), risk, HORIZON, thresholds=[0.5])[0])
+
+
+def test_km_risk_nan_when_follow_up_too_short():
+    assert np.isnan(km_risk(np.array([1.0, 2.0]), np.array([1, 0]), HORIZON)[0])

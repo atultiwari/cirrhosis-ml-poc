@@ -31,7 +31,7 @@ class CVConfig:
     horizon: float = 5.0
     auc_times: tuple[float, ...] = (2.0, 5.0, 10.0)
     tau: float = 10.0
-    ibs_times: tuple[float, ...] = (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)
+    ibs_times: tuple[float, ...] = (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)  # yearly grid (Mayo S0)
     n_splits: int = 5
     n_repeats: int = 10
     inner_splits: int = 3
