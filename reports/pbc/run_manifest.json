@@ -1,6 +1,6 @@
 {
-  "timestamp_utc": "2026-11-03T06:24:12+00:00",
-  "git_commit": "e5040eed960dce49e4a681ddb02b81fa4a7f5deb",
+  "timestamp_utc": "2026-11-03T07:42:29+00:00",
+  "git_commit": "28d2d60dc3a640d0aa565381a5c1c0fb57c1cba3",
   "git_dirty": false,
   "python": "3.11.14",
   "packages": {
@@ -19,6 +19,14 @@
     "file": "pbc_uci878.csv",
     "sha256": "390cad412bd9bc484f5ef6c6836edb7ae53ddcf6fb8ac2a2459399ef8042f32f"
   },
+  "phase2_config": {
+    "n_repeats": 10,
+    "sens_repeats": 5,
+    "n_boot": 1000,
+    "seed": 42,
+    "horizon": 5.0,
+    "shap": true
+  },
   "outputs": [
     "reports/pbc/table1_by_status_all418.md",
     "reports/pbc/table1_by_status_trial312.md",
@@ -26,6 +34,15 @@
     "reports/pbc/figures/km_overall.png",
     "reports/pbc/figures/km_by_stage.png",
     "reports/pbc/mayo_score_metrics.md",
-    "reports/pbc/mayo_score_metrics.csv"
+    "reports/pbc/mayo_score_metrics.csv",
+    "reports/pbc_report.md",
+    "reports/pbc/cv_fold_metrics.csv",
+    "reports/pbc/figures/calibration_5y.png",
+    "reports/pbc/figures/dca_5y.png",
+    "reports/pbc/figures/shap_gbsa_beeswarm.png",
+    "reports/pbc/figures/shap_gbsa_dependence.png",
+    "reports/pbc/figures/shap_rsf_beeswarm.png",
+    "reports/pbc/figures/shap_rsf_dependence.png",
+    "reports/pbc/figures/competing_risk_cif.png"
   ]
 }
