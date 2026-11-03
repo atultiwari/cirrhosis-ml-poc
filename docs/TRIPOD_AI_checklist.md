@@ -21,26 +21,26 @@ Status: ☐ not started · ◐ in progress · ☑ done · n/a not applicable.
 | 5b | Data | D;E | Dates of accrual and end of follow-up | ☐ | ☐ | |
 | 6a | Participants | D;E | Setting, number and location of centres | ☐ | ☐ | |
 | 6b | Participants | D;E | Eligibility criteria | ◐ | ◐ | PBC: trial n=312 primary (DECISIONS) |
-| 6c | Participants | D;E | Treatments received and how handled | ☐ | ☐ | PBC: D-penicillamine vs placebo |
+| 6c | Participants | D;E | Treatments received and how handled | ◐ | ☐ | Treatment arm not a predictor (DECISIONS P2) |
 | 7 | Data preparation | D;E | Pre-processing and quality checks; similar across groups? | ◐ | ☐ | `pbc/load.py`, DECISIONS |
 | 8a | Outcome | D;E | Outcome definition, horizon, how/when assessed, rationale, consistency across groups | ◐ | ◐ | PBC: death, CL censored (DECISIONS) |
 | 8b | Outcome | D;E | Qualifications of outcome assessors if subjective | n/a | ☐ | |
 | 8c | Outcome | D;E | Blinding of outcome assessment | ☐ | ☐ | |
-| 9a | Predictors | D | Choice and pre-selection of candidate predictors | ☐ | ◐ | |
-| 9b | Predictors | D;E | Define predictors, how/when measured, blinding | ☐ | ◐ | configs/canonical_schema.yaml |
+| 9a | Predictors | D | Choice and pre-selection of candidate predictors | ☑ | ◐ | pbc/models.py docstring; DECISIONS P2 |
+| 9b | Predictors | D;E | Define predictors, how/when measured, blinding | ◐ | ◐ | pbc/models.py; configs/canonical_schema.yaml |
 | 9c | Predictors | D;E | Qualifications of predictor assessors if subjective | ☐ | ☐ | PBC: edema, histologic stage |
-| 10 | Sample size | D;E | How study size was arrived at; justification/calculation | ☐ | ☐ | pmsampsize (see DECISIONS) |
-| 11 | Missing data | D;E | Handling of missing data; reasons for omissions | ◐ | ☐ | reports/pbc/missingness.md |
-| 12a | Analytical methods | D | How data were used/partitioned | ☐ | ☐ | |
-| 12b | Analytical methods | D | Predictor handling: functional form, transforms, scaling | ☐ | ☐ | |
-| 12c | Analytical methods | D | Model type, rationale, building steps, tuning, internal validation | ☐ | ☐ | |
+| 10 | Sample size | D;E | How study size was arrived at; justification/calculation | ☑ | ☐ | reports/pbc_report.md §Sample size; evaluation/sample_size.py |
+| 11 | Missing data | D;E | Handling of missing data; reasons for omissions | ☑ | ☐ | survival/preprocessing.py; reports/pbc/missingness.md |
+| 12a | Analytical methods | D | How data were used/partitioned | ☑ | ☐ | reports/pbc_report.md §Methods; survival/cv.py |
+| 12b | Analytical methods | D | Predictor handling: functional form, transforms, scaling | ☑ | ☐ | pbc/models.py (log transforms, scaling in fold) |
+| 12c | Analytical methods | D | Model type, rationale, building steps, tuning, internal validation | ☑ | ☐ | survival/estimators.py; DECISIONS P2 |
 | 12d | Analytical methods | D;E | Heterogeneity across clusters | n/a | ☐ | |
-| 12e | Analytical methods | D;E | All performance measures/plots and rationale; model comparison | ◐ | ☐ | `evaluation/survival_metrics.py` |
+| 12e | Analytical methods | D;E | All performance measures/plots and rationale; model comparison | ☑ | ☐ | evaluation/{survival_metrics,calibration,dca}.py |
 | 12f | Analytical methods | E | Model updating (e.g. recalibration) | ☐ | ☐ | |
 | 12g | Analytical methods | E | How predictions were calculated for evaluation | ◐ | ☐ | `pbc/mayo_score.py` (apparent performance; DECISIONS) |
 | 13 | Class imbalance | D;E | Imbalance methods, why, and recalibration | n/a | ◐ | DECISIONS: no SMOTE |
 | 14 | Fairness | D;E | Approaches to model fairness and rationale | ☐ | ☐ | |
-| 15 | Model output | D | Output type; thresholds and how chosen | ☐ | ☐ | |
+| 15 | Model output | D | Output type; thresholds and how chosen | ☑ | ☐ | 5-year risk of death; no classification threshold (DCA range) |
 | 16 | Training vs evaluation | D;E | Differences between development and evaluation data | ☐ | ☐ | |
 | 17 | Ethical approval | D;E | Ethics committee / consent or waiver | ☐ | ☐ | open/credentialed data |
 | 18a | Funding | D;E | Funding source and role | ☐ | ☐ | |
@@ -50,16 +50,16 @@ Status: ☐ not started · ◐ in progress · ☑ done · n/a not applicable.
 | 18e | Data sharing | D;E | Availability of study data | ◐ | ☐ | UCI 878 (CC BY 4.0) |
 | 18f | Code sharing | D;E | Availability of analytical code | ◐ | ◐ | this repository |
 | 19 | Patient & public involvement | D;E | PPI details or none | ☐ | ☐ | |
-| 20a | Participants | D;E | Participant flow, n with/without outcome, follow-up summary | ◐ | ☐ | reports/pbc/table1_by_status_trial312.md |
+| 20a | Participants | D;E | Participant flow, n with/without outcome, follow-up summary | ◐ | ☐ | reports/pbc/table1_by_status_trial312.md, mayo_score_metrics.md |
 | 20b | Participants | D;E | Characteristics overall/per source, events, follow-up, missingness; group differences | ◐ | ☐ | reports/pbc/ |
 | 20c | Participants | E | Evaluation vs development predictor/outcome distributions | ☐ | ☐ | |
-| 21 | Model development | D;E | n participants and events per analysis | ◐ | ☐ | reports/pbc/mayo_score_metrics.md |
-| 22 | Model specification | D | Full model (formula/code/object/API) and access terms | ◐ | ☐ | Mayo formula in `pbc/mayo_score.py` |
-| 23a | Model performance | D;E | Performance with CIs, incl. key subgroups; plots | ◐ | ☐ | reports/pbc/mayo_score_metrics.md |
+| 21 | Model development | D;E | n participants and events per analysis | ☑ | ☐ | reports/pbc/cv_fold_metrics.csv (n, events per fold) |
+| 22 | Model specification | D | Full model (formula/code/object/API) and access terms | ◐ | ☐ | Mayo refit coefficients in report; ML models as code |
+| 23a | Model performance | D;E | Performance with CIs, incl. key subgroups; plots | ☑ | ☐ | reports/pbc_report.md (CIs; no subgroups yet) |
 | 23b | Model performance | D;E | Heterogeneity across clusters | n/a | ☐ | |
 | 24 | Model updating | E | Results of any updating | ☐ | ☐ | |
 | 25 | Interpretation | D;E | Overall interpretation incl. fairness vs objectives/prior work | ☐ | ☐ | |
-| 26 | Limitations | D;E | Limitations and effects on bias, uncertainty, generalisability | ☐ | ☐ | |
+| 26 | Limitations | D;E | Limitations and effects on bias, uncertainty, generalisability | ◐ | ☐ | reports/pbc_report.md §Limitations |
 | 27a | Usability | D | Handling poor-quality/unavailable inputs at implementation | ☐ | ☐ | |
 | 27b | Usability | D | User interaction and required expertise | ☐ | ☐ | |
 | 27c | Usability | D;E | Next steps; applicability and generalisability | ☐ | ☐ | |

@@ -1,6 +1,7 @@
-"""Track A end to end: load PBC -> EDA -> Mayo risk score evaluation -> run manifest.
+"""Track A end to end: load PBC -> EDA -> Mayo score -> Phase 2 models -> report + manifest.
 
-Usage: ``uv run python -m cirrhosis_ml.pbc.run_all [--n-boot 1000] [--refresh]``
+Usage: ``uv run python -m cirrhosis_ml.pbc.run_all [--quick] [--skip-models] [--refresh]``
+(full run ~15-20 min on a laptop; ``--quick`` is for smoke-testing only).
 """
 
 from __future__ import annotations
@@ -11,6 +12,7 @@ import json
 import logging
 import platform
 import subprocess
+from dataclasses import asdict
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -32,6 +34,8 @@ from cirrhosis_ml.pbc.mayo_score import (
     MAYO_INITIAL_COEFFICIENTS,
     mayo_score_from_pbc,
 )
+from cirrhosis_ml.pbc.phase2 import Phase2Config, run_phase2
+from cirrhosis_ml.pbc.report import write_report
 
 logger = logging.getLogger(__name__)
 
@@ -135,7 +139,8 @@ def _package_versions() -> dict[str, str]:
 
 
 def write_manifest(
-    out_dir: Path, n_boot: int, seed: int, outputs: list[Path], data_file: Path
+    out_dir: Path, n_boot: int, seed: int, outputs: list[Path], data_file: Path,
+    phase2: dict | None = None,
 ) -> Path:
     manifest = {
         "timestamp_utc": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -147,6 +152,7 @@ def write_manifest(
         "n_bootstrap": n_boot,
         "data": {"source": "UCI ML Repository id 878", "file": data_file.name,
                  "sha256": hashlib.sha256(data_file.read_bytes()).hexdigest()},
+        "phase2_config": phase2,
         "outputs": [str(p.relative_to(PROJECT_ROOT)) for p in outputs],
     }
     path = out_dir / "run_manifest.json"
@@ -159,9 +165,17 @@ def main() -> None:
     parser.add_argument("--n-boot", type=int, default=N_BOOTSTRAP)
     parser.add_argument("--seed", type=int, default=RANDOM_SEED)
     parser.add_argument("--refresh", action="store_true", help="re-download UCI 878")
+    parser.add_argument("--skip-models", action="store_true", help="Phase 1 outputs only")
+    parser.add_argument("--repeats", type=int, default=10, help="outer CV repeats (primary)")
+    parser.add_argument("--sens-repeats", type=int, default=5, help="CV repeats, sensitivity")
+    parser.add_argument("--no-shap", action="store_true", help="skip SHAP (slowest step)")
+    parser.add_argument("--quick", action="store_true",
+                        help="smoke test: 1 repeat, 1 sensitivity repeat, 100 bootstraps")
     args = parser.parse_args()
-    if args.n_boot < 1:
-        parser.error("--n-boot must be >= 1")
+    if args.quick:
+        args.repeats, args.sens_repeats, args.n_boot = 1, 1, 100
+    if min(args.n_boot, args.repeats, args.sens_repeats) < 1:
+        parser.error("--n-boot, --repeats and --sens-repeats must be >= 1")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
     out_dir = PBC_REPORTS_DIR
@@ -173,8 +187,18 @@ def main() -> None:
     metrics = evaluate_mayo(trial, n_boot=args.n_boot, seed=args.seed)
     outputs.append(write_mayo_report(_cohort_counts(trial), metrics, args.n_boot, out_dir))
     outputs.append(out_dir / "mayo_score_metrics.csv")
+
+    phase2_cfg = None
+    if not args.skip_models:
+        phase2_cfg = Phase2Config(n_repeats=args.repeats, sens_repeats=args.sens_repeats,
+                                  n_boot=args.n_boot, seed=args.seed, shap=not args.no_shap)
+        results, cv = run_phase2(df, out_dir, phase2_cfg)
+        cv.fold_metrics.to_csv(out_dir / "cv_fold_metrics.csv", index=False)
+        report = write_report(results, phase2_cfg, PROJECT_ROOT / "reports" / "pbc_report.md")
+        outputs.extend([report, out_dir / "cv_fold_metrics.csv", *results.figures.values()])
     manifest = write_manifest(out_dir, args.n_boot, args.seed, outputs,
-                              data_file=cache_dir / CACHE_FILENAME)
+                              data_file=cache_dir / CACHE_FILENAME,
+                              phase2=asdict(phase2_cfg) if phase2_cfg else None)
     logger.info("Done. Manifest: %s", manifest)
     logger.info("Mayo (final) Harrell's C: %.3f",
                 metrics.loc[(next(iter(SCORE_VARIANTS)), "harrell_c"), "estimate"])

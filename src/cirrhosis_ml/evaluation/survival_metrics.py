@@ -149,6 +149,10 @@ def bootstrap_metrics(
     if len(replicates) < min_ok_fraction * n_boot:
         raise ValueError(f"only {len(replicates)}/{n_boot} bootstrap replicates succeeded")
     boot = pd.DataFrame(replicates, columns=list(estimate))
+    return _summarise_boot(estimate, boot)
+
+
+def _summarise_boot(estimate: dict[str, float], boot: pd.DataFrame) -> pd.DataFrame:
     alpha = (1 - CI_LEVEL) / 2
     return pd.DataFrame(
         {
@@ -158,3 +162,40 @@ def bootstrap_metrics(
             "n_boot_ok": boot.notna().sum(),
         }
     ).rename_axis("metric")
+
+
+def bootstrap_difference(
+    data: SurvivalData,
+    risk_reference: npt.ArrayLike,
+    horizons: Sequence[float],
+    tau: float,
+    n_boot: int = N_BOOTSTRAP,
+    seed: int = RANDOM_SEED,
+) -> pd.DataFrame:
+    """Paired difference (``data.risk`` minus reference) in every metric, with bootstrap CI.
+
+    Both scores are evaluated on the same resampled patients, so the CI reflects the paired
+    comparison (a CI excluding 0 indicates a difference).
+    """
+    ref = SurvivalData(time=data.time, event=data.event,
+                       risk=np.asarray(risk_reference, dtype=float))
+    if ref.risk.shape != data.risk.shape:
+        raise ValueError("reference risk must match data length")
+
+    def diff(a: SurvivalData, b: SurvivalData) -> dict[str, float]:
+        ma, mb = point_metrics(a, horizons, tau), point_metrics(b, horizons, tau)
+        return {k: ma[k] - mb[k] for k in ma}
+
+    estimate = diff(data, ref)
+    rng = np.random.default_rng(seed)
+    n = len(data.time)
+    replicates = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, size=n)
+        try:
+            replicates.append(diff(data.take(idx), ref.take(idx)))
+        except ValueError as exc:
+            logger.debug("bootstrap replicate skipped: %s", exc)
+    if len(replicates) < MIN_OK_FRACTION * n_boot:
+        raise ValueError(f"only {len(replicates)}/{n_boot} bootstrap replicates succeeded")
+    return _summarise_boot(estimate, pd.DataFrame(replicates, columns=list(estimate)))

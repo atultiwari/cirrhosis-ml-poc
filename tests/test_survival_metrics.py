@@ -3,6 +3,7 @@ import pytest
 
 from cirrhosis_ml.evaluation.survival_metrics import (
     SurvivalData,
+    bootstrap_difference,
     bootstrap_metrics,
     harrell_c,
     point_metrics,
@@ -86,3 +87,13 @@ def test_separate_train_for_censoring(synthetic):
     test = SurvivalData.from_arrays(time[200:], event[200:], risk[200:])
     m = point_metrics(test, horizons=[2], tau=6, train=train)
     assert 0.5 < m["uno_c_tau6"] < 1.0
+
+
+def test_bootstrap_difference_paired(synthetic):
+    time, event, risk = synthetic
+    data = SurvivalData.from_arrays(time, event, risk)
+    same = bootstrap_difference(data, risk, horizons=[2], tau=8, n_boot=30, seed=0)
+    assert (same["estimate"] == 0).all() and (same["ci_upper"] == 0).all()
+    rng = np.random.default_rng(1)
+    noisy = bootstrap_difference(data, risk + rng.normal(0, 2, len(risk)), [2], 8, 100, 0)
+    assert noisy.loc["harrell_c", "ci_lower"] > 0  # true risk beats a noisy version
