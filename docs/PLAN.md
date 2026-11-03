@@ -177,7 +177,7 @@ grading, Baveno VII and ICA-AKI definitions that the public data lack).
 ---
 
 ## 5. Phase checklist
-- [x] **P0** uv project, pyproject, folder structure, pytest, ruff (2026-11-03; pre-commit hook not yet added)
+- [x] **P0** uv project, pyproject, folder structure, pytest, ruff, pre-commit (2026-11-03)
 - [x] **P1** Track A data load + EDA + Mayo score (2026-11-03; `uv run python -m cirrhosis_ml.pbc.run_all`)
 - [ ] **P2** Track A models, validation, metrics, report
 - [ ] **P3** PhysioNet credentialing (Atul) — see `docs/PHYSIONET_ACCESS.md`
