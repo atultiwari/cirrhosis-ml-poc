@@ -29,14 +29,25 @@ class CalibrationSummary:
 
 
 def km_risk(time: np.ndarray, event: np.ndarray, horizon: float) -> tuple[float, float, float]:
-    """1 - KM survival at ``horizon`` with 95% CI (lower, upper); NaN if follow-up ends earlier."""
-    if np.max(time) < horizon:
+    """1 - KM survival at ``horizon`` with 95% CI (lower, upper).
+
+    NaN when follow-up ends before ``horizon`` with a censored patient (KM undefined there);
+    if it ends with an event the KM curve has reached its final value and is reported.
+    """
+    if not follow_up_reaches(time, event, horizon):
         return np.nan, np.nan, np.nan
     kmf = KaplanMeierFitter().fit(time, event)
     surv = float(kmf.survival_function_at_times(horizon).iloc[0])
     ci = kmf.confidence_interval_survival_function_
     row = ci[ci.index <= horizon].iloc[-1]
     return 1 - surv, 1 - float(row.iloc[1]), 1 - float(row.iloc[0])
+
+
+def follow_up_reaches(time: np.ndarray, event: np.ndarray, horizon: float) -> bool:
+    """True if KM survival at ``horizon`` is identified (follow-up reaches it, or the last
+    observation before it is an event)."""
+    t, e = np.asarray(time, float), np.asarray(event)
+    return bool(t.max() >= horizon or e[np.argmax(t)] == 1)
 
 
 def truncate_at(time: np.ndarray, event: np.ndarray, horizon: float):

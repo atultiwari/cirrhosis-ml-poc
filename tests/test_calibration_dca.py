@@ -74,3 +74,7 @@ def test_net_benefit_suppressed_for_small_or_short_subsets():
 
 def test_km_risk_nan_when_follow_up_too_short():
     assert np.isnan(km_risk(np.array([1.0, 2.0]), np.array([1, 0]), HORIZON)[0])
+
+
+def test_km_risk_defined_when_everyone_dies_early():
+    assert km_risk(np.array([1.0, 2.0]), np.array([1, 1]), HORIZON)[0] == pytest.approx(1.0)

@@ -4,8 +4,8 @@ Net benefit at threshold probability pt, with Kaplan-Meier handling censoring:
     NB = P(risk >= pt) * [ (1 - S_sel(t)) - S_sel(t) * pt / (1 - pt) ]
 where S_sel(t) is KM survival at the horizon among patients with predicted risk >= pt.
 "Treat all" uses everyone; "treat none" is 0. Net benefit is NaN (not extrapolated) when fewer
-than ``MIN_CELL_COUNT`` patients are above the threshold or their follow-up ends before the
-horizon.
+than ``MIN_CELL_COUNT`` patients are above the threshold or KM is undefined at the horizon
+(follow-up ends earlier with a censored patient).
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ import pandas as pd
 from lifelines import KaplanMeierFitter
 
 from cirrhosis_ml.config import MIN_CELL_COUNT
+from cirrhosis_ml.evaluation.calibration import follow_up_reaches
 
 DEFAULT_THRESHOLDS = tuple(np.round(np.arange(0.05, 0.61, 0.01), 2))
 
@@ -38,7 +39,7 @@ def net_benefit(time: npt.ArrayLike, event: npt.ArrayLike, risk: npt.ArrayLike, 
         if not sel.any():
             out.append(0.0)
             continue
-        if sel.sum() < MIN_CELL_COUNT or t[sel].max() < horizon:
+        if sel.sum() < MIN_CELL_COUNT or not follow_up_reaches(t[sel], e[sel], horizon):
             out.append(np.nan)
             continue
         s = _km_survival(t[sel], e[sel], horizon)

@@ -1,7 +1,7 @@
 # Cirrhosis ML Proof-of-Concept — Detailed Plan
 
 **Owner:** Dr Atul Tiwari · **Clinical home:** Dept of Gastroenterology, RNT Medical College, Udaipur
-**Status:** P0–P1 done → Phase 2 · **Last updated:** 2026-11-03
+**Status:** P0–P2 done → Track B (P3 credentialing, P4 demo data) · **Last updated:** 2026-11-03
 
 ---
 
@@ -179,7 +179,7 @@ grading, Baveno VII and ICA-AKI definitions that the public data lack).
 ## 5. Phase checklist
 - [x] **P0** uv project, pyproject, folder structure, pytest, ruff, pre-commit (2026-11-03)
 - [x] **P1** Track A data load + EDA + Mayo score (2026-11-03; `uv run python -m cirrhosis_ml.pbc.run_all`)
-- [ ] **P2** Track A models, validation, metrics, report
+- [x] **P2** Track A models, validation, metrics, report (2026-11-03; `reports/pbc_report.md`)
 - [ ] **P3** PhysioNet credentialing (Atul) — see `docs/PHYSIONET_ACCESS.md`
 - [ ] **P4** Track B cohort/features/outcomes/scores on MIMIC demo + eICU demo
 - [ ] **P5** Atul runs Track B on full MIMIC-IV locally → aggregate outputs only

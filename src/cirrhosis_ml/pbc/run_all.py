@@ -119,9 +119,10 @@ def _git_commit() -> str | None:
 
 
 def _git_dirty() -> bool | None:
-    """True if tracked files differ from HEAD (results then do not match ``git_commit``)."""
+    """True if tracked code/docs differ from HEAD (generated ``reports/`` are ignored)."""
     try:
-        out = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"],
+        out = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--",
+                              ".", ":!reports"],
                              cwd=PROJECT_ROOT, capture_output=True, text=True, check=True)
     except (OSError, subprocess.CalledProcessError):
         return None
